@@ -20,7 +20,8 @@ def fetch_public_ip_from_ec2(instance_id):
     logger.info("Fetching public IP for instance-id: %s", instance_id)
 
     ec2_response = ec2.describe_instances(InstanceIds=[instance_id])
-    ip_address = ec2_response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['PublicIpAddress']
+    # ip_address = ec2_response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['PublicIpAddress']
+    ip_address = ec2_response['Reservations'][0]['Instances'][0]['PublicIpAddress']
 
     logger.info("Found public IP for instance-id %s: %s", instance_id, ip_address)
 
