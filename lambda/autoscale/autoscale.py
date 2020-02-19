@@ -27,6 +27,19 @@ def fetch_public_ip_from_ec2(instance_id):
 
     return ip_address
 
+# Get the domain name for the zone id.
+# This is used during the route53 update/change record. api take the fqdn not short name.
+def fetch_domain_name_from_route53(zone_id):
+    logger.info("Fetching domain name for zone-id: %s", zone_id)
+
+    route53_response = route53.get_hosted_zone(Id=zone_id)
+
+    domain_name = route53_response['HostedZone']['Name']
+
+    logger.info("Found domain name for zone-id %s: %s", zone_id, domain_name)
+
+    return domain_name
+
 # Fetches public IP of an instance via route53 API
 def fetch_public_ip_from_route53(hostname, zone_id):
     logger.info("Fetching public IP for hostname: %s", hostname)
@@ -115,7 +128,7 @@ def process_message(message):
     instance_id =  message['EC2InstanceId']
 
     hostname_pattern, zone_id = fetch_tag_metadata(asg_name)
-    hostname = build_hostname(hostname_pattern, instance_id)
+    hostname = build_hostname(hostname_pattern, instance_id) + '.' + fetch_domain_name_from_route53(zone_id)
 
     if operation == "UPSERT":
         public_ip = fetch_public_ip_from_ec2(instance_id)
