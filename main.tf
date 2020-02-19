@@ -115,7 +115,13 @@ resource "aws_lambda_function" "autoscale_handling" {
   source_code_hash = filebase64sha256(data.archive_file.autoscale.output_path)
   description      = "Handles DNS for autoscaling groups by receiving autoscaling notifications and setting/deleting records from route53"
 
-  tags = var.custom_tags
+  dynamic "tags" {
+    for_each = var.custom_tags
+    content {
+      key = tags.key
+      value = tags.value
+    }
+  }
 }
 
 resource "aws_lambda_permission" "autoscale_handling" {
