@@ -1,5 +1,6 @@
 resource "aws_sns_topic" "autoscale_handling" {
   name = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}"
+  tags = var.custom_tags
 }
 
 resource "aws_iam_role_policy" "autoscale_handling" {
@@ -113,6 +114,8 @@ resource "aws_lambda_function" "autoscale_handling" {
   runtime          = "python2.7"
   source_code_hash = filebase64sha256(data.archive_file.autoscale.output_path)
   description      = "Handles DNS for autoscaling groups by receiving autoscaling notifications and setting/deleting records from route53"
+
+  tags = var.custom_tags
 }
 
 resource "aws_lambda_permission" "autoscale_handling" {

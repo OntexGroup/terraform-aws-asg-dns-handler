@@ -10,3 +10,7 @@ variable "autoscale_route53zone_arn" {
   description = "The ARN of route53 zone associated with autoscaling group"
 }
 
+variable "custom_tags" {
+  description = "A mapping of tags to assign to the project (mandatory)"
+}
+
