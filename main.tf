@@ -70,6 +70,8 @@ EOF
 resource "aws_iam_role" "lifecycle" {
   name               = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}-lifecycle"
   assume_role_policy = data.aws_iam_policy_document.lifecycle.json
+
+  tags = var.custom_tags
 }
 
 data "aws_iam_policy_document" "lifecycle" {
@@ -113,15 +115,8 @@ resource "aws_lambda_function" "autoscale_handling" {
   handler          = "autoscale.lambda_handler"
   runtime          = "python2.7"
   source_code_hash = filebase64sha256(data.archive_file.autoscale.output_path)
+  tags             = var.custom_tags
   description      = "Handles DNS for autoscaling groups by receiving autoscaling notifications and setting/deleting records from route53"
-
-  dynamic "tags" {
-    for_each = var.custom_tags
-    content {
-      key = tags.key
-      value = tags.value
-    }
-  }
 }
 
 resource "aws_lambda_permission" "autoscale_handling" {
