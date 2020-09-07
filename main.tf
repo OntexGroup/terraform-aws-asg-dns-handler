@@ -1,10 +1,10 @@
 resource "aws_sns_topic" "autoscale_handling" {
-  name = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}"
+  name = var.autoscale_handler_unique_identifier
   tags = var.custom_tags
 }
 
 resource "aws_iam_role_policy" "autoscale_handling" {
-  name = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}"
+  name = var.autoscale_handler_unique_identifier
   role = aws_iam_role.autoscale_handling.name
 
   policy = <<EOF
@@ -47,7 +47,7 @@ EOF
 }
 
 resource "aws_iam_role" "autoscale_handling" {
-  name = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}"
+  name = var.autoscale_handler_unique_identifier
 
   assume_role_policy = <<EOF
 {
@@ -68,7 +68,7 @@ EOF
 }
 
 resource "aws_iam_role" "lifecycle" {
-  name               = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}-lifecycle"
+  name               = "${var.autoscale_handler_unique_identifier}-lifecycle"
   assume_role_policy = data.aws_iam_policy_document.lifecycle.json
 
   tags = var.custom_tags
@@ -87,7 +87,7 @@ data "aws_iam_policy_document" "lifecycle" {
 }
 
 resource "aws_iam_role_policy" "lifecycle_policy" {
-  name   = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}-lifecycle"
+  name   = "${var.autoscale_handler_unique_identifier}-lifecycle"
   role   = aws_iam_role.lifecycle.id
   policy = data.aws_iam_policy_document.lifecycle_policy.json
 }
@@ -110,7 +110,7 @@ resource "aws_lambda_function" "autoscale_handling" {
   depends_on = [aws_sns_topic.autoscale_handling]
 
   filename         = data.archive_file.autoscale.output_path
-  function_name    = "${var.vpc_name}-${var.autoscale_handler_unique_identifier}"
+  function_name    = var.autoscale_handler_unique_identifier
   role             = aws_iam_role.autoscale_handling.arn
   handler          = "autoscale.lambda_handler"
   runtime          = "python2.7"
@@ -136,4 +136,3 @@ resource "aws_sns_topic_subscription" "autoscale_handling" {
   protocol  = "lambda"
   endpoint  = aws_lambda_function.autoscale_handling.arn
 }
-
